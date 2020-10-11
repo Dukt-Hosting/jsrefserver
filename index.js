@@ -9,11 +9,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.raw());
 
-//<meta http-equiv="refresh" content="time; URL=new_url" />
-
 const reflist = config.reflist
-
-//creates redirect files for every url and ref in a list
 
 reflist.forEach(function (file) {
     var ref = file.ref
@@ -26,14 +22,6 @@ reflist.forEach(function (file) {
         //res.sendFile(__dirname + `/views/${ref}.html`)
     })
 });
-//fs.readdir('./views', function (err, files) {
-//   if (err) {
-//       return console.error('Unable to scan directory: ' + err);
-//    }
-//    files.forEach(function (file) {
-//    });
-//});\\
-
 app.post('/testpost', function(req, res) {
     console.log(req.body)
     res.end()
