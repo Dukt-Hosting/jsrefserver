@@ -1,6 +1,11 @@
 {
+    "tooken": [
+        "basic"
+    ],
     "reflist": [
-        {"ref": "h1", "url": "https://google.com"},
-        {"ref": "h2", "url": "https://google.com"}
+        {
+            "ref": "basic",
+            "url": "https://google.com"
+        }
     ]
 }
