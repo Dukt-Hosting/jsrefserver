@@ -2,37 +2,65 @@ const express = require('express')
 const app = express()
 var path = require('path');
 var fs = require('fs');
-var config = require('./db.json')
+const bodyParser = require('body-parser');
+var config = require('./db.json');
+const { json } = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.raw());
 
 //<meta http-equiv="refresh" content="time; URL=new_url" />
 
 const reflist = config.reflist
 
+//creates redirect files for every url and ref in a list
+
 reflist.forEach(function (file) {
     var ref = file.ref
     var url = file.url
-    fs.writeFile(path.join(__dirname + `/views/${ref}.html`), `<meta http-equiv="refresh" content="0; URL=${url}" />`, function (err) {
+    if (ref == 'index'){
+        return
+    };
+    app.get(`/${ref}`, function (req, res) {
+        res.redirect(url)
+        //res.sendFile(__dirname + `/views/${ref}.html`)
+    })
+});
+//fs.readdir('./views', function (err, files) {
+//   if (err) {
+//       return console.error('Unable to scan directory: ' + err);
+//    }
+//    files.forEach(function (file) {
+//    });
+//});\\
+
+app.post('/testpost', function(req, res) {
+    console.log(req.body)
+    res.end()
+});
+app.post('/shorten', function(req, res){
+    var jsonstr = req.body
+    console.log(req.body);
+    console.log(jsonstr);
+    if (jsonstr.url.startsWith("http") === false){
+        res.sendStatus(223)
+       res.end()
+       return
+    };
+    if(config.tooken.includes(jsonstr.ref) === true){
+        console.log('Received request to shorten a already tooken page stopping...')
+        res.sendStatus(222)
+        res.end()
+        return
+    };
+    config.tooken.push(jsonstr.ref);
+    config.reflist.push({"ref": jsonstr.ref, "url": jsonstr.url})
+    fs.writeFile('./db.json', JSON.stringify(config, null, 4), function (err) {
         if (err) return console.log(err);
-      });
-});
-
-fs.readdir('./views', function (err, files) {
-    //handling error
-    if (err) {
-        return console.log('Unable to scan directory: ' + err);
-    } 
-    //listing all files using forEach
-
-    console.log(files)
-
-    files.forEach(function (file) {
-        // Do whatever you want to do with the file
-        file = file.replace('.html', '')
-        app.get(`/${file}`, function (req, res) {
-            res.sendFile(path.join(__dirname + `/views/${file}.html`))
-          })
-        console.log(`Served ref link ${file}`); 
     });
+    res.end(); // end the response
 });
-
-app.listen(3000)
+//starts the express server on the specified port
+app.listen(8766, function(){
+    console.log('Express listening on port', this.address().port)
+});
